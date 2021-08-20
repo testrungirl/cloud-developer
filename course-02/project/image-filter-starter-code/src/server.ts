@@ -1,7 +1,9 @@
 import express from 'express';
 import bodyParser from 'body-parser';
+var validurl = require('valid-url');
+
 import {filterImageFromURL, deleteLocalFiles} from './util/util';
-var validurl = require('valid-url')
+
 (async () => {
 
   // Init the Express application
