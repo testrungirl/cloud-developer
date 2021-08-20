@@ -1,7 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import {filterImageFromURL, deleteLocalFiles} from './util/util';
-
+var validurl = require('valid-url')
 (async () => {
 
   // Init the Express application
@@ -28,7 +28,41 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   //   the filtered image file [!!TIP res.sendFile(filteredpath); might be useful]
 
   /**************************************************************************** */
+  function validateUrl(url: string){
+    return validurl.isUri(url);
+  }
+  app.get( "/filteredimage", async ( req, res ) => {
 
+    let image_url = req.query.image_url;
+    if(!image_url){
+      return res.status(400).send("Image url is required")
+    }
+    let image = validateUrl(image_url);
+    if(image){
+      try{ 
+        filterImageFromURL(image_url).then((path)=>{
+          res.sendFile(path);
+          res.on('finish', function(){
+            deleteLocalFiles([path]);
+          })
+        })
+      } catch(error) {
+        return res.status(500).send({ 
+          success: "false",
+          message: "An error occured",
+          err: error
+        })
+      }
+      
+    }
+
+    else {
+      return res.status(404).send({
+        success: "false",
+        message: "Image url is not valid",
+      })
+    }
+  });
   //! END @TODO1
   
   // Root Endpoint
