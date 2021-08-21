@@ -33,17 +33,17 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   function validateUrl(url: string){
     return validurl.isUri(url);
   }
-  app.get( "/filteredimage", async ( req, res ) => {
+  app.get( "/filteredimage", async ( req: express.Request, res: express.Response ) => {
 
-    let image_url = req.query.image_url;
+    let image_url: string = req.query.image_url;
     if(!image_url){
       return res.status(400).send("Image url is required")
     }
-    let image = validateUrl(image_url);
+    let image: string = validateUrl(image_url);
     if(image){
       try{ 
         filterImageFromURL(image_url).then((path)=>{
-          res.sendFile(path);
+          res.status(200).sendFile(path);
           res.on('finish', function(){
             deleteLocalFiles([path]);
           })
